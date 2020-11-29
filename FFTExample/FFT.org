@@ -78,37 +78,37 @@ frequencies with SIN function in python.
 - With PSD figure it is very clear that we can filter the respective signal
   using simple filter to mask about all the signal under 50.
 
-  #+BEGIN_SRC python :results output :exports both
-    #!/usr/bin/env python3
-    # Filter out signal using PSD
-    ind = PSD > 100 # filter above 50
-    filPSD = PSD *ind
-    filx = ind * X
-    fftx = np.fft.ifft(filx)
-    #plot
-    fig,axs = plt.subplots(3,1)
+#+BEGIN_SRC python :results output :exports both
+  #!/usr/bin/env python3
+  # Filter out signal using PSD
+  ind = PSD > 100 # filter above 50
+  filPSD = PSD *ind
+  filx = ind * X
+  fftx = np.fft.ifft(filx)
+  #plot
+  fig,axs = plt.subplots(3,1)
 
-    plt.sca(axs[0])
-    plt.plot(t,y,color='k',LineWidth=1.5,label='Noisy')
-    plt.plot(t,f,color='g',LineWidth=2,label='Pure Signal')
-    plt.xlim(t[0],t[-1])
-    plt.legend()
+  plt.sca(axs[0])
+  plt.plot(t,y,color='k',LineWidth=1.5,label='Noisy')
+  plt.plot(t,f,color='g',LineWidth=2,label='Pure Signal')
+  plt.xlim(t[0],t[-1])
+  plt.legend()
 
 
-    plt.sca(axs[1])
-    plt.plot(t,fftx,color='k',LineWidth=1.5,label='Filtered')
-    plt.xlim(t[0],t[-1])
-    #plt.ylim(-1,1)
-    plt.legend()
+  plt.sca(axs[1])
+  plt.plot(t,fftx,color='k',LineWidth=1.5,label='Filtered')
+  plt.xlim(t[0],t[-1])
+  #plt.ylim(-1,1)
+  plt.legend()
 
-    plt.sca(axs[2])
-    plt.plot(freq[L],PSD[L],color='c',LineWidth=1.5,label='PSD')
-    plt.plot(freq[L],filPSD[L],color='k',LineWidth=1.5,label='FIL PSD')
-    plt.xlim(freq[L[0]],freq[L[-1]])
-    plt.legend()
+  plt.sca(axs[2])
+  plt.plot(freq[L],PSD[L],color='c',LineWidth=1.5,label='PSD')
+  plt.plot(freq[L],filPSD[L],color='k',LineWidth=1.5,label='FIL PSD')
+  plt.xlim(freq[L[0]],freq[L[-1]])
+  plt.legend()
 
-    plt.show()
-    #+END_SRC
+  plt.show()
+#+END_SRC
 - The filter PSD index can help to reproduce the signal as shown in below figure
 
   #+NAME: fig:signal_regen
