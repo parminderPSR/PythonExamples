@@ -1,0 +1,115 @@
+#+STARTUP: overview
+#+TITLE: Data Analysis using FFT in Python
+
+Fast Fourier Transform (FFT) is a very powerful and very commonly used in signal
+processing. Below is an example where I have generated 2 signals with different
+frequencies with SIN function in python.
+* Signal Generation
+ - I have generated 2 sin signal with frequency multiple of 50 and 130.
+ - Then I have added random noise with scaling of factor 2.
+#+BEGIN_SRC python :results output :exports both
+  #!/usr/bin/env python3
+  import numpy as np
+  import matplotlib.pyplot as plt
+
+  plt.rcParams['figure.figsize']= [16,12]
+  plt.rcParams.update({'font.size': 18})
+
+  # create a simple signal with 2 frequencies
+  s = 0.001
+  t = np.arange(0,1,s)
+  f = np.sin(2*np.pi*50*t) + np.sin(2*np.pi*130*t)
+  n = np.random.randn(len(t)) y = f + 2 *n
+
+  fig,axs = plt.subplots(3,1) plt.sca(axs[0])
+  plt.plot(t,f,color='g',LineWidth=2,label='Pure Signal')
+  plt.xlim(t[0],t[-1])
+  plt.ylim(4,-4)
+  plt.legend()
+
+  plt.sca(axs[1])
+  plt.plot(t,n,color='c',LineWidth=2,label='Noise')
+  plt.xlim(t[0],t[-1])
+  plt.ylim(6,-6) plt.legend()
+
+  plt.sca(axs[2])
+  plt.plot(t,y,color='c',LineWidth=1.5,label='Noisy Signal')
+  plt.plot(t,f,color='g',LineWidth=2,label='Pure Signal')
+  plt.xlim(t[0],t[-1])
+  plt.ylim(6,-6)
+  plt.legend()
+
+  #+END_SRC
+
+- I have plotted the generated signal as well as noisy signal.
+#+NAME: fig:signal
+[[./img/output_0_1.png]]
+* PSD using FFT
+
+- Used FFT to get Power spectral density of received signal to get the view of
+  the received signal. In PSD one can clearly 2 peaks at 50 and 180 which are
+  equal to generated signal.
+
+  #+BEGIN_SRC python :results output :exports both
+    #!/usr/bin/env python3
+    # Compute FFT
+    n = len(t)
+    X = np.fft.fft(y,n)
+    PSD = abs((X * np.conj(X)) /n)
+    freq = (1/(s*n)) * np.arange(n)
+    L = np.arange(1,np.floor(n/2),dtype='int')
+    print(PSD[1:5])
+    fig,axs = plt.subplots(2,1)
+    plt.sca(axs[0])
+    plt.plot(t,y,color='k',LineWidth=1.5,label='Noisy')
+    plt.plot(t,f,color='g',LineWidth=2,label='Pure Signal')
+    plt.xlim(t[0],t[-1])
+    plt.legend()
+    # subplot 2
+    plt.sca(axs[1])
+    plt.plot(freq[L],abs(PSD[L]),color='g',LineWidth=1.5,label='PSD')
+    plt.xlim(freq[L[0]],freq[L[-1]])
+    plt.legend()
+    #+END_SRC
+
+#+NAME: fig:psd
+[[./img/output_1_2.png]]
+* Signal Regeneration
+- With PSD figure it is very clear that we can filter the respective signal
+  using simple filter to mask about all the signal under 50.
+
+  #+BEGIN_SRC python :results output :exports both
+    #!/usr/bin/env python3
+    # Filter out signal using PSD
+    ind = PSD > 100 # filter above 50
+    filPSD = PSD *ind
+    filx = ind * X
+    fftx = np.fft.ifft(filx)
+    #plot
+    fig,axs = plt.subplots(3,1)
+
+    plt.sca(axs[0])
+    plt.plot(t,y,color='k',LineWidth=1.5,label='Noisy')
+    plt.plot(t,f,color='g',LineWidth=2,label='Pure Signal')
+    plt.xlim(t[0],t[-1])
+    plt.legend()
+
+
+    plt.sca(axs[1])
+    plt.plot(t,fftx,color='k',LineWidth=1.5,label='Filtered')
+    plt.xlim(t[0],t[-1])
+    #plt.ylim(-1,1)
+    plt.legend()
+
+    plt.sca(axs[2])
+    plt.plot(freq[L],PSD[L],color='c',LineWidth=1.5,label='PSD')
+    plt.plot(freq[L],filPSD[L],color='k',LineWidth=1.5,label='FIL PSD')
+    plt.xlim(freq[L[0]],freq[L[-1]])
+    plt.legend()
+
+    plt.show()
+    #+END_SRC
+- The filter PSD index can help to reproduce the signal as shown in below figure
+
+  #+NAME: fig:signal_regen
+  [[./img/output_3_1.png]]
